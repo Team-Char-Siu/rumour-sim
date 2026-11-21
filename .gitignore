@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Testing and caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Generated output
+output/
+plots/
+*.log
+
+# Editor and OS
+.DS_Store
+.idea/
+.vscode/

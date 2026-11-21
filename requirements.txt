@@ -1,0 +1,8 @@
+numpy
+scipy
+matplotlib
+pyglet~=2.1.5
+pymunk
+pillow
+pytiled-parser
+# then run separately: pip install --no-deps arcade
