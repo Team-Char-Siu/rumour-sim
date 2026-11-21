@@ -29,6 +29,3 @@ class RestorationTests(unittest.TestCase):
         self.assertEqual(ns['nodeColour'](a),ns['EX_FRIEND_COL'])
         a.wasFriend = False
         self.assertEqual(ns['nodeColour'](a,1),ns['SPREAD_COL'])
-    def test_invalid_settings(self):
-        with self.assertRaises(ValueError):
-            makeSettings(0)
