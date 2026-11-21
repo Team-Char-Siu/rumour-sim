@@ -1,7 +1,7 @@
 # Rumour simulation - Team Char Siu
 <p align="center">
   <a href="https://www.python.org/">
-    <img src="https://www.python.org/static/community_logos/python-logo.png" alt="Python logo" width="240">
+    <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0a/Python.svg/1280px-Python.svg.png" alt="Python logo" width="160">
   </a>
 </p>
 Serial mobile-agent rumour model. Python, NumPy, SciPy, Arcade.
