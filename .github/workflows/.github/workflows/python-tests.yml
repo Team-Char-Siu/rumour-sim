@@ -1,0 +1,67 @@
+name: Python tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      MPLBACKEND: Agg
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install --no-deps arcade
+
+      - name: Check Python syntax
+        run: python -m compileall -q *.py tests
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Run headless simulation
+        run: |
+          python -c "import shutil; shutil.rmtree('results', ignore_errors=True)"
+          python main.py "CI test rumour" --headless --n=200 --steps=100 --seed=42
+
+      - name: Check generated charts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          names = [
+              "curve.png",
+              "group_spreaders.png",
+              "near_subject.png",
+              "tree.png",
+          ]
+
+          for name in names:
+              path = Path("results") / name
+              assert path.is_file(), f"Missing chart: {path}"
+              assert path.stat().st_size > 0, f"Empty chart: {path}"
+          PY
+
+      - name: Upload generated charts
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulation-charts
+          path: results/*.png
+          if-no-files-found: error
