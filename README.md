@@ -1,5 +1,9 @@
 # Rumour simulation - Team Char Siu
-
+<p align="center">
+  <a href="https://www.python.org/">
+    <img src="https://www.python.org/static/community_logos/python-logo.png" alt="Python logo" width="240">
+  </a>
+</p>
 Serial mobile-agent rumour model. Python, NumPy, SciPy, Arcade.
 Parallel implementation and benchmarks: pending.
 
