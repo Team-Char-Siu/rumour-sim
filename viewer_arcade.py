@@ -286,6 +286,7 @@ class RumourWindow(arcade.Window):
             index for index in range(count)
             if self.agents[index].state == SPREADER
         ]
+        self.real = np.zeros((count, 2), dtype=float)
         self.shown = self.realPositions()
         self.real = self.shown.copy()
         self.history = []
@@ -362,6 +363,7 @@ class RumourWindow(arcade.Window):
         for index, agent in enumerate(self.agents):
             self.real[index, 0] = agent.x
             self.real[index, 1] = agent.y
+
         return self.real
 
     def toScreen(self, position):
