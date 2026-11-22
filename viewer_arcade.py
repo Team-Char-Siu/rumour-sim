@@ -626,6 +626,7 @@ class RumourWindow(arcade.Window):
         order = sorted(
             range(len(self.agents)),
             key=lambda index: self.told[index],
+            reverse=True,
         )
         self.top = [
             index for index in order[:5] if told[index] > 0
