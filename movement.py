@@ -280,32 +280,43 @@ def moveAgents(
         desired = (agent.x, agent.y)
         target = currentTarget(agent)
 
-        # subject blocks group centre so go around
+        # - blocked group centre should not become a ring destination
         if target != NO_GROUP:
             groupCentre = GROUP_CENTRES[target]
+            centreBlocked = (
+                math.dist(groupCentre, centre) < outerRadius + stepSize
+            )
+            insideGroup = math.dist(start, groupCentre) <= leash
 
-            if math.dist(groupCentre, centre) < outerRadius + stepSize:
-                if distance == 0:
-                    angle = agent.routeSide * math.pi / 2
-                else:
-                    angle = math.atan2(changeY, changeX)
+            if centreBlocked and insideGroup:
+                # - wander through safe space within the current group
+                # - reject blocked moves instead of circling the subject
+                desired = start
 
-                agent.avoidAngle = angle
-
-                goalX = centre[0] + (outerRadius + stepSize) * math.cos(angle)
-                goalY = centre[1] + (outerRadius + stepSize) * math.sin(angle)
-                goal = (goalX, goalY)
-
-                goalChangeX = goalX - start[0]
-                goalChangeY = goalY - start[1]
-                goalDistance = math.hypot(goalChangeX, goalChangeY)
-
-                if goalDistance > 1e-9:
-                    speed = min(goalDistance, travelSpeed)
-                    desired = (
-                        start[0] + speed * goalChangeX / goalDistance,
-                        start[1] + speed * goalChangeY / goalDistance,
+                for attempt in range(16):
+                    candidate = (
+                        start[0] + stepSize * np.random.uniform(-1, 1),
+                        start[1] + stepSize * np.random.uniform(-1, 1),
                     )
+
+                    if not (
+                        0 <= candidate[0] <= BOX
+                        and 0 <= candidate[1] <= BOX
+                    ):
+                        continue
+
+                    if math.dist(candidate, groupCentre) > leash:
+                        continue
+
+                    if math.dist(candidate, centre) < outerRadius:
+                        continue
+
+                    if segmentDistance(start, candidate, centre) < avoidRadius:
+                        continue
+
+                    desired = candidate
+                    break
+               
 
         # gentle push away in soft avoidance zone
         if avoidRadius < distance < outerRadius:
