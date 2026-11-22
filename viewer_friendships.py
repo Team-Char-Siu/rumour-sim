@@ -5,8 +5,8 @@ import arcade
 
 import viewer_arcade as base
 from agent import SPREADER, CORRECTOR, NO_GROUP
-from movement import safeMove
 from simulation import transmissionStats
+from movement import safeMove
 from viewer_effects import (
     drawThinArrow,
     showsAvoidance,
@@ -145,7 +145,9 @@ class FriendshipWindow(base.RumourWindow):
                     AVOID_RING_WIDTH,
                 )
 
-        stats = transmissionStats(self.agents)
+        stats = getattr(self, "stats", None)
+        if stats is None:
+            stats = transmissionStats(self.agents)
 
         self.label(
             "friendsOverlay",

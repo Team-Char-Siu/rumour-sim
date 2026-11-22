@@ -297,6 +297,8 @@ class RumourWindow(arcade.Window):
         )
         self.near0 = self.near[0]
         self.t = 0
+        self.counts = countStates(self.agents)
+        self.stats = transmissionStats(self.agents)
         self.acc = 0.0
         self.selected = None
         self.intro = 0.0
@@ -479,28 +481,12 @@ class RumourWindow(arcade.Window):
 
                 self.history.append(countStates(self.agents))
                 self.t += 1
+                self.counts = countStates(self.agents)
+                self.updateTransmissionCounts()
 
-        # count how many people each agent told
-        told = [0] * len(self.agents)
-
-        for agent in self.agents:
-            if agent.infector >= 0:
-                told[agent.infector] += 1
-
-        self.told = told
-
-        order = sorted(
-            range(len(told)),
-            key=lambda index: -told[index],
-        )
-        self.top = [
-            index for index in order[:5] if told[index] > 0
-        ]
-
-        self.near = nearSubject(
-            self.agents,
-            self.p.get('nearRadius', 10),
-        )
+        # update cached transmission counts only after a new step
+        if not hasattr(self, 'toldStep') or self.toldStep != self.t:
+            self.updateTransmissionCounts()
 
         # smooth shown positions toward real positions
         smooth = 1 - math.exp(-dt * SMOOTH_RATE)
@@ -605,6 +591,29 @@ class RumourWindow(arcade.Window):
             elif self.glowStyle[index]:
                 glow.color = (255, 255, 255, 0)
                 self.glowStyle[index] = False
+    def updateTransmissionCounts(self):
+        """Update cached direct transmission counts for each agent"""
+        told = [0] * len(self.agents)
+
+        for agent in self.agents:
+            if agent.infector >= 0:
+                told[agent.infector] += 1
+
+        self.told = told
+        self.toldStep = self.t
+
+        order = sorted(
+            range(len(self.agents)),
+            key=lambda index: self.told[index],
+        )
+        self.top = [
+            index for index in order[:5] if told[index] > 0
+        ]
+
+        self.near = nearSubject(
+            self.agents,
+            self.p.get('nearRadius', 10),
+        )
 
     def label(self, key, message, x, yTop, colour=TEXT, size=11, bold=False):
         """Draw or update label"""
@@ -1019,8 +1028,8 @@ class RumourWindow(arcade.Window):
 
         y += 22
 
-        counts = countStates(self.agents)
-        stats = transmissionStats(self.agents)
+        counts = self.counts
+        stats = self.stats
 
         for index in range(4):
             arcade.draw_circle_filled(
