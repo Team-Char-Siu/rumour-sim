@@ -287,6 +287,7 @@ class RumourWindow(arcade.Window):
             if self.agents[index].state == SPREADER
         ]
         self.shown = self.realPositions()
+        self.real = self.shown.copy()
         self.history = []
         self.arrows = []
         self.pulses = []
@@ -357,11 +358,11 @@ class RumourWindow(arcade.Window):
             self.dots.append(dot)
 
     def realPositions(self):
-        """Get real agent positions"""
-        return np.array(
-            [[agent.x, agent.y] for agent in self.agents],
-            dtype=float,
-        )
+        """Upd and return reusable agent pos array"""
+        for index, agent in enumerate(self.agents):
+            self.real[index, 0] = agent.x
+            self.real[index, 1] = agent.y
+        return self.real
 
     def toScreen(self, position):
         """Convert simulation position to screen position"""
