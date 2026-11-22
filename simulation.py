@@ -249,8 +249,6 @@ def rollSpread(
 
 def stepSimulation(agents, time, settings):
     """Run movement timers and rumour spread for one step"""
-    subject = None
-
     subjectIndex = findSubjectIndex(agents)
     subject = agents[subjectIndex] if subjectIndex >= 0 else None
 
