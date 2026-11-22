@@ -287,8 +287,7 @@ class RumourWindow(arcade.Window):
             if self.agents[index].state == SPREADER
         ]
         self.real = np.zeros((count, 2), dtype=float)
-        self.shown = self.realPositions()
-        self.real = self.shown.copy()
+        self.shown = self.realPositions().copy()
         self.history = []
         self.arrows = []
         self.pulses = []
@@ -609,33 +608,11 @@ class RumourWindow(arcade.Window):
             key=lambda index: self.told[index],
             reverse=True,
         )
+
         self.top = [
             index for index in order[:5]
             if self.told[index] > 0
         ]
-        """Update cached direct transmission counts for each agent"""
-        told = [0] * len(self.agents)
-
-        for agent in self.agents:
-            if agent.infector >= 0:
-                told[agent.infector] += 1
-
-        self.told = told
-        self.toldStep = self.t
-
-        order = sorted(
-            range(len(self.agents)),
-            key=lambda index: self.told[index],
-            reverse=True,
-        )
-        self.top = [
-            index for index in order[:5] if told[index] > 0
-        ]
-
-        self.near = nearSubject(
-            self.agents,
-            self.p.get('nearRadius', 10),
-        )
 
     def label(self, key, message, x, yTop, colour=TEXT, size=11, bold=False):
         """Draw or update label"""
