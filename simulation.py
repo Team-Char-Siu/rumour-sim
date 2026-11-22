@@ -265,6 +265,26 @@ def stepSimulation(agents, time, settings):
     avoidRadius = settings.get("avoidRadius", 7)
 
     if subject is not None and subject.state == UNAWARE and avoidRadius > 0:
+        nearbyAvoiders = 0
+        noticeRadiusSquared = (avoidRadius + 2) ** 2
+
+        for agent in agents:
+            if not agent.avoiding:
+                continue
+
+            dx = agent.x - subject.x
+            dy = agent.y - subject.y
+
+            if dx * dx + dy * dy < noticeRadiusSquared:
+                nearbyAvoiders += 1
+
+        subject.shunned += nearbyAvoiders
+
+        # - notice builds across steps from nearby avoiders
+        noticeAfter = settings.get("noticeAfter", 20)
+
+        if nearbyAvoiders > 0 and subject.shunned >= noticeAfter:
+            subject.becomeSubjectCorrector(-1, -1, time)
         nearbyAvoiders = []
 
         for agent in agents:
