@@ -120,6 +120,11 @@ def getPositions(agents):
 def getStates(agents):
     return [agent.state for agent in agents]
 
+def findSubjectIndex(agents):
+    for index, agent in enumerate(agents):
+        if agent.isSubject:
+            return index
+    return -1
 
 def pickSource(row, oldStates, wantedState):
     """Pick one nearby agent with wanted state"""
@@ -246,10 +251,8 @@ def stepSimulation(agents, time, settings):
     """Run movement timers and rumour spread for one step"""
     subject = None
 
-    for agent in agents:
-        if agent.isSubject:
-            subject = agent
-            break
+    subjectIndex = findSubjectIndex(agents)
+    subject = agents[subjectIndex] if subjectIndex >= 0 else None
 
     # - caller settings override this fallback duration
     correctionDuration = settings.get("correctionDuration", 110)
@@ -336,12 +339,8 @@ def countSpreadersByGroup(agents):
 
 def nearSubject(agents, radius):
     """Count agents near subject and believers near subject"""
-    subject = None
-
-    for agent in agents:
-        if agent.isSubject:
-            subject = agent
-            break
+    subjectIndex = findSubjectIndex(agents)
+    subject = agents[subjectIndex] if subjectIndex >= 0 else None
 
     if subject is None:
         return [0, 0]
@@ -397,12 +396,8 @@ def transmissionStats(agents):
         if agent.generation >= 0
     )
 
-    subject = None
-
-    for agent in agents:
-        if agent.isSubject:
-            subject = agent
-            break
+    subjectIndex = findSubjectIndex(agents)
+    subject = agents[subjectIndex] if subjectIndex >= 0 else None
 
     if subject is None:
         subjectHeardAt = None
