@@ -294,16 +294,9 @@ class RumourWindow(arcade.Window):
         self.pulses = []
         self.log = []
         self.latest = -1
-        self.told = [0] * count
-        self.top = []
-        self.near = nearSubject(
-            self.agents,
-            self.p.get('nearRadius', 10),
-        )
-        self.near0 = self.near[0]
         self.t = 0
-        self.counts = countStates(self.agents)
-        self.stats = transmissionStats(self.agents)
+        self.refreshStats()
+        self.near0 = self.near[0]
         self.acc = 0.0
         self.selected = None
         self.intro = 0.0
@@ -487,14 +480,9 @@ class RumourWindow(arcade.Window):
                                 )
                             )
 
-                self.history.append(countStates(self.agents))
                 self.t += 1
-                self.counts = countStates(self.agents)
-                self.updateTransmissionCounts()
-
-        # update cached transmission counts only after a new step
-        if not hasattr(self, 'toldStep') or self.toldStep != self.t:
-            self.updateTransmissionCounts()
+                self.refreshStats()
+                self.history.append(self.counts.copy())
 
         # smooth shown positions toward real positions
         smooth = 1 - math.exp(-dt * SMOOTH_RATE)
@@ -600,7 +588,31 @@ class RumourWindow(arcade.Window):
             elif self.glowStyle[index]:
                 glow.color = (255, 255, 255, 0)
                 self.glowStyle[index] = False
-    def updateTransmissionCounts(self):
+
+    def refreshStats(self):
+        """Refresh viewer numbers after the model changes"""
+        self.counts = countStates(self.agents)
+        self.stats = transmissionStats(self.agents)
+        self.near = nearSubject(
+            self.agents,
+            self.p.get('nearRadius', 10),
+        )
+
+        self.told = [0] * len(self.agents)
+
+        for agent in self.agents:
+            if agent.infector >= 0:
+                self.told[agent.infector] += 1
+
+        order = sorted(
+            range(len(self.agents)),
+            key=lambda index: self.told[index],
+            reverse=True,
+        )
+        self.top = [
+            index for index in order[:5]
+            if self.told[index] > 0
+        ]
         """Update cached direct transmission counts for each agent"""
         told = [0] * len(self.agents)
 
