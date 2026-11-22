@@ -24,6 +24,8 @@ TICKS_PER_SECOND = 30
 SMOOTH_RATE = 14
 ARROW_LIFE = 5.0
 PULSE_LIFE = 1.0
+MAX_ARROWS = 30
+MAX_PULSES = 10
 FONT = ('Consolas', 'Menlo', 'DejaVu Sans Mono', 'Courier New')
 INTRO_HOLD = 3.0
 INTRO_GLIDE = 2.0
@@ -269,6 +271,7 @@ class RumourWindow(arcade.Window):
         self.spreadMode = True
         self.follow = True
         self.rings = False
+        self.effects = False
         self.mousePos = (-1000, -1000)
         self.now = 0.0
 
@@ -406,6 +409,8 @@ class RumourWindow(arcade.Window):
             self.follow = not self.follow
         elif symbol == key.H:
             self.rings = not self.rings
+        elif symbol == key.E:
+            self.effects = not self.effects
         elif symbol == key.R:
             self.newRun()
 
@@ -528,12 +533,13 @@ class RumourWindow(arcade.Window):
             self.arrows = [
                 arrow for arrow in self.arrows
                 if self.now - arrow[4] < ARROW_LIFE
-            ]
+
+             ][-MAX_ARROWS:]
 
         self.pulses = [
             pulse for pulse in self.pulses
             if self.now - pulse[1] < PULSE_LIFE
-        ]
+        ][-MAX_PULSES:]
         self.log = self.log[-60:]
 
         # update dots and glows
@@ -581,7 +587,7 @@ class RumourWindow(arcade.Window):
             glow = self.glows[index]
             glow.position = (screenX, screenY)
 
-            if active:
+            if active and self.effects:
                 glow.color = rgba(
                     STATE_COL[agent.state],
                     GLOW_ALPHA,
@@ -668,9 +674,10 @@ class RumourWindow(arcade.Window):
                 1,
             )
 
-        self.glowList.draw(
-            blend_function=self.ctx.BLEND_PREMULTIPLIED_ALPHA
-        )
+        if self.effects:
+            self.glowList.draw(
+                blend_function=self.ctx.BLEND_PREMULTIPLIED_ALPHA
+            )
 
         # draw arrows
         for arrow in self.arrows:
